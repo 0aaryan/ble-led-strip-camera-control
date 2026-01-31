@@ -1,15 +1,17 @@
 # LED Strip Control Dashboard
 
-A modern web-based dashboard for controlling Bluetooth LE LED strips with camera-based brightness detection.
+A modern web-based dashboard for controlling Bluetooth LE LED strips with camera-based brightness detection. **Now with ELK-BLEDOM protocol support** for color-changing LED strips compatible with the "com.ledlamp" Android app.
 
 ## ✨ Features
 
 - 📡 **BLE Device Scanner**: Discover and connect to nearby Bluetooth devices
 - 🔌 **Connection Testing**: Verify LED strip connectivity and status
-- 💡 **LED Control Panel**: Control LED colors with quick presets or custom commands
+- 💡 **LED Control Panel**: Control LED colors with 12 vibrant gradient presets or custom commands
+- 🎨 **ELK-BLEDOM Protocol Support**: Full compatibility with color-changing LED strips
 - 📹 **Camera Monitoring**: Real-time brightness detection using your webcam
-- 🎨 **Modern UI**: Responsive dashboard with gradient backgrounds and smooth animations
+- ✨ **Modern UI**: Responsive dashboard with gradient backgrounds, smooth animations, and enhanced button effects
 - ⚡ **Real-time Updates**: Live status information and system feedback
+- 🌐 **Offline-First**: No external CDN dependencies, works completely offline
 
 ## 🏗️ Project Structure
 
@@ -116,22 +118,58 @@ See [API Documentation](docs/API.md) for complete API reference.
 
 ## 🎨 LED Color Commands
 
-Most LED strips accept 3-byte RGB hex values:
+This application supports the **ELK-BLEDOM protocol**, which is used by many BLE LED strips controlled by apps like "com.ledlamp" (LED LAMP).
 
-| Color   | Hex Code |
-|---------|----------|
-| Red     | `ff0000` |
-| Green   | `00ff00` |
-| Blue    | `0000ff` |
-| White   | `ffffff` |
-| Yellow  | `ffff00` |
-| Cyan    | `00ffff` |
-| Magenta | `ff00ff` |
-| Off     | `000000` |
+### Protocol Format
 
-**Note**: The exact command format depends on your LED strip model. The default UUID `0000fff3-0000-1000-8000-00805f9b34fb` works with many common BLE LED strips.
+Commands follow this 10-byte structure:
+```
+[0x7e, 0x07, 0x05, 0x03, RR, GG, BB, 0x00, 0x00, 0xef]
+```
+
+- **Header**: `0x7e 0x07 0x05 0x03` - Command prefix
+- **RR**: Red value (0x00-0xFF)
+- **GG**: Green value (0x00-0xFF)
+- **BB**: Blue value (0x00-0xFF)
+- **Padding**: `0x00 0x00` - Reserved bytes
+- **Footer**: `0xef` - Command terminator
+
+### Color Examples
+
+| Color   | RGB Hex | Full Command                    |
+|---------|---------|--------------------------------|
+| Red     | `ff0000` | `7e070503ff00000000ef`         |
+| Green   | `00ff00` | `7e07050300ff000000ef`         |
+| Blue    | `0000ff` | `7e0705030000ff0000ef`         |
+| Yellow  | `ffff00` | `7e070503ffff000000ef`         |
+| Cyan    | `00ffff` | `7e07050300ffff0000ef`         |
+| Magenta | `ff00ff` | `7e070503ff00ff0000ef`         |
+| Orange  | `ff8800` | `7e070503ff88000000ef`         |
+| Purple  | `8800ff` | `7e0705038800ff0000ef`         |
+| Pink    | `ff1493` | `7e070503ff14930000ef`         |
+| White   | `ffffff` | `7e070503ffffff0000ef`         |
+| Off     | `000000` | `7e0705030000000000ef`         |
+
+### Characteristic UUID
+
+The default write characteristic UUID for ELK-BLEDOM compatible LED strips is:
+```
+0000ffe1-0000-1000-8000-00805f9b34fb
+```
+
+Alternative UUIDs (less common):
+- `0000fff3-0000-1000-8000-00805f9b34fb`
+
+**Note**: Use the "Inspect Services" feature in the dashboard to verify your device's correct UUID.
 
 ## 🔧 Configuration
+
+### Supported LED Strips
+
+This dashboard is designed to work with **ELK-BLEDOM** compatible LED strips, including:
+- Strips controlled by the "com.ledlamp" Android app
+- Generic BLE LED strips from Flipkart, Amazon, etc.
+- Any LED strip using the ELK-BLEDOM protocol
 
 ### Finding Your LED Strip's UUID
 
@@ -139,9 +177,9 @@ Most LED strips accept 3-byte RGB hex values:
 2. Select your device and click "Inspect Services"
 3. Look for characteristics with "write" property
 4. Common LED control UUIDs:
-   - `0000fff3-0000-1000-8000-00805f9b34fb` (most common)
-   - `0000ffe1-0000-1000-8000-00805f9b34fb`
-   - Check your LED strip's documentation
+   - `0000ffe1-0000-1000-8000-00805f9b34fb` (ELK-BLEDOM standard)
+   - `0000fff3-0000-1000-8000-00805f9b34fb` (alternative)
+   - Check your LED strip's documentation if neither works
 
 ## 🐛 Troubleshooting
 

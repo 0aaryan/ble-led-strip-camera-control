@@ -18,58 +18,6 @@
       padding: 20px;
     }
     
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    
-    header {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
-    }
-    
-    h1 {
-      color: #333;
-      font-size: 2rem;
-      margin-bottom: 5px;
-    }
-    
-    .subtitle {
-      color: #666;
-      font-size: 0.9rem;
-    }
-    
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .card h2 {
-      color: #333;
-      font-size: 1.4rem;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #667eea;
-    }
-    
     .status-indicator {
       display: inline-block;
       width: 12px;
@@ -79,182 +27,47 @@
       animation: pulse 2s infinite;
     }
     
-    .status-connected {
-      background: #10b981;
-    }
-    
-    .status-disconnected {
-      background: #ef4444;
-    }
-    
-    .status-testing {
-      background: #f59e0b;
-    }
-    
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
     
-    button {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: background 0.2s, transform 0.1s;
-      margin: 4px;
-    }
-    
-    button:hover {
-      background: #5568d3;
-      transform: translateY(-1px);
-    }
-    
-    button:active {
-      transform: translateY(0);
-    }
-    
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    button.secondary {
-      background: #6b7280;
-    }
-    
-    button.secondary:hover {
-      background: #4b5563;
-    }
-    
-    button.danger {
-      background: #ef4444;
-    }
-    
-    button.danger:hover {
-      background: #dc2626;
-    }
-    
-    .device-list {
-      list-style: none;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-    
-    .device-item {
-      background: #f9fafb;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
-    }
-    
-    .device-item:hover {
-      background: #f3f4f6;
-    }
-    
-    .device-item.selected {
-      background: #dbeafe;
-      border: 2px solid #667eea;
-    }
-    
-    .device-info {
-      flex: 1;
-    }
-    
-    .device-name {
-      font-weight: 600;
-      color: #333;
-      display: block;
-      margin-bottom: 4px;
-    }
-    
-    .device-details {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    
-    .hidden {
-      display: none !important;
-    }
-    
-    .control-group {
-      margin: 16px 0;
-    }
-    
-    .control-group label {
-      display: block;
-      color: #555;
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-    
-    input[type="number"], 
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
-    }
-    
-    input:focus, select:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    
-    .color-picker {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 12px 0;
-    }
-    
     .color-btn {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       border: 3px solid #e5e7eb;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .color-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(0,0,0,0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     
     .color-btn:hover {
-      transform: scale(1.1);
+      transform: scale(1.2) translateY(-4px) rotate(5deg);
       border-color: #667eea;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
     }
     
-    video {
-      width: 100%;
-      max-width: 640px;
-      height: auto;
-      border-radius: 8px;
-      border: 2px solid #e5e7eb;
-      margin: 12px 0;
+    .color-btn:hover::before {
+      opacity: 1;
     }
     
-    .brightness-display {
-      background: #f3f4f6;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      margin: 16px 0;
-    }
-    
-    .brightness-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #667eea;
+    .color-btn:active {
+      transform: scale(1.05) translateY(0) rotate(0);
     }
     
     .loading {
@@ -274,43 +87,28 @@
       100% { transform: rotate(360deg); }
     }
     
-    .alert {
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin: 12px 0;
-      font-size: 0.9rem;
+    .gradient-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
+      backdrop-filter: blur(10px);
     }
     
-    .alert-info {
-      background: #dbeafe;
-      color: #1e40af;
-      border-left: 4px solid #3b82f6;
-    }
-    
-    .alert-success {
-      background: #d1fae5;
-      color: #065f46;
-      border-left: 4px solid #10b981;
-    }
-    
-    .alert-error {
-      background: #fee2e2;
-      color: #991b1b;
-      border-left: 4px solid #ef4444;
-    }
-    
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    
-    @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
+    /* Respect user's motion preferences for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .color-btn:hover {
+        transform: none;
+        border-color: #667eea;
       }
-      .grid-2 {
-        grid-template-columns: 1fr;
+      
+      .color-btn::before {
+        transition: none;
+      }
+      
+      .loading {
+        animation: none;
+      }
+      
+      button:hover {
+        transform: none;
       }
     }
   </style>
@@ -367,14 +165,18 @@
           <div class="control-group">
             <label>Quick Colors</label>
             <div class="color-picker">
-              <div class="color-btn" style="background: #ff0000" data-color="ff0000" title="Red"></div>
-              <div class="color-btn" style="background: #00ff00" data-color="00ff00" title="Green"></div>
-              <div class="color-btn" style="background: #0000ff" data-color="0000ff" title="Blue"></div>
-              <div class="color-btn" style="background: #ffff00" data-color="ffff00" title="Yellow"></div>
-              <div class="color-btn" style="background: #ff00ff" data-color="ff00ff" title="Magenta"></div>
-              <div class="color-btn" style="background: #00ffff" data-color="00ffff" title="Cyan"></div>
-              <div class="color-btn" style="background: #ffffff; border-color: #333" data-color="ffffff" title="White"></div>
-              <div class="color-btn" style="background: #000000" data-color="000000" title="Off"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff0000, #cc0000)" data-color="ff0000" title="Red"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ff00, #00cc00)" data-color="00ff00" title="Green"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #0000ff, #0000cc)" data-color="0000ff" title="Blue"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ffff00, #cccc00)" data-color="ffff00" title="Yellow"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff00ff, #cc00cc)" data-color="ff00ff" title="Magenta"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ffff, #00cccc)" data-color="00ffff" title="Cyan"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff8800, #cc6600)" data-color="ff8800" title="Orange"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #8800ff, #6600cc)" data-color="8800ff" title="Purple"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff1493, #cc1077)" data-color="ff1493" title="Pink"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ff88, #00cc66)" data-color="00ff88" title="Spring Green"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ffffff, #eeeeee); border-color: #666" data-color="ffffff" title="White"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #000000, #333333)" data-color="000000" title="Off"></div>
             </div>
           </div>
           
@@ -386,7 +188,11 @@
                        value="0000ffe1-0000-1000-8000-00805f9b34fb" />
               </div>
               <div>
-                <input type="text" id="data-hex" placeholder="Hex data (e.g., 0a0b0c)" />
+                <input type="text" id="data-hex" 
+                       placeholder="e.g., 7e070503ff00000000ef (Red)" 
+                       pattern="[0-9a-fA-F]+"
+                       minlength="2"
+                       title="Enter hexadecimal characters only (0-9, a-f)" />
               </div>
             </div>
             <button id="btn-send-command" style="margin-top: 8px;">Send Command</button>
@@ -651,9 +457,9 @@
     document.querySelectorAll('.color-btn').forEach(btn => {
       btn.onclick = () => {
         const color = btn.dataset.color
-        // Wrap color in LED protocol frame: 7e 07 05 03 RRGGBB 00 checksum
-        // For simplicity, use 7e0705030000 prefix + RRGGBB + ef suffix
-        const command = `7e0705030000${color}ef`
+        // ELK-BLEDOM Protocol: 7e 07 05 03 RR GG BB 00 00 ef
+        // Header: 7e070503, RGB color, padding: 0000, footer: ef
+        const command = `7e070503${color}0000ef`
         sendLEDCommand(command)
       }
     })
@@ -663,6 +469,16 @@
       const dataHex = elements.dataHex.value.trim()
       if (!dataHex) {
         showAlert(elements.ledCommandResult, '⚠️ Please enter hex data', 'error')
+        return
+      }
+      // Validate hex format
+      if (!/^[0-9a-fA-F]+$/.test(dataHex)) {
+        showAlert(elements.ledCommandResult, '⚠️ Invalid hex format. Use only characters 0-9 and a-f', 'error')
+        return
+      }
+      // Validate even number of characters (each byte is 2 hex chars)
+      if (dataHex.length % 2 !== 0) {
+        showAlert(elements.ledCommandResult, '⚠️ Hex data must have an even number of characters', 'error')
         return
       }
       sendLEDCommand(dataHex)
