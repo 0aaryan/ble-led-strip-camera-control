@@ -414,9 +414,9 @@
     document.querySelectorAll('.color-btn').forEach(btn => {
       btn.onclick = () => {
         const color = btn.dataset.color
-        // ELK-BLEDOM Protocol: 7e 07 05 03 RR GG BB 00 00 ef
-        // Header: 7e070503, RGB color, padding: 0000, footer: ef
-        const command = `7e070503${color}0000ef`
+        // Wrap color in LED protocol frame: 7e 07 05 03 RRGGBB 00 checksum
+        // For simplicity, use 7e0705030000 prefix + RRGGBB + ef suffix
+        const command = `7e0705030000${color}ef`
         sendLEDCommand(command)
       }
     })
