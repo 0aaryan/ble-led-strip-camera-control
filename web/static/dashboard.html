@@ -91,6 +91,25 @@
       background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
       backdrop-filter: blur(10px);
     }
+    
+    /* Respect user's motion preferences for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .color-btn:hover {
+        transform: scale(1.1);
+      }
+      
+      .color-btn::before {
+        transition: none;
+      }
+      
+      .loading {
+        animation: none;
+      }
+      
+      button:hover {
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -168,7 +187,10 @@
                        value="0000ffe1-0000-1000-8000-00805f9b34fb" />
               </div>
               <div>
-                <input type="text" id="data-hex" placeholder="e.g., 7e070503ff00000000ef (Red)" />
+                <input type="text" id="data-hex" 
+                       placeholder="e.g., 7e070503ff00000000ef (Red)" 
+                       pattern="[0-9a-fA-F]*"
+                       title="Enter hexadecimal characters only (0-9, a-f)" />
               </div>
             </div>
             <button id="btn-send-command" style="margin-top: 8px;">Send Command</button>
@@ -445,6 +467,16 @@
       const dataHex = elements.dataHex.value.trim()
       if (!dataHex) {
         showAlert(elements.ledCommandResult, '⚠️ Please enter hex data', 'error')
+        return
+      }
+      // Validate hex format
+      if (!/^[0-9a-fA-F]+$/.test(dataHex)) {
+        showAlert(elements.ledCommandResult, '⚠️ Invalid hex format. Use only characters 0-9 and a-f', 'error')
+        return
+      }
+      // Validate even number of characters (each byte is 2 hex chars)
+      if (dataHex.length % 2 !== 0) {
+        showAlert(elements.ledCommandResult, '⚠️ Hex data must have an even number of characters', 'error')
         return
       }
       sendLEDCommand(dataHex)

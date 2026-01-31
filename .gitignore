@@ -25,3 +25,8 @@ config/*.json
 
 # Temporary camera snapshots
 camera_change_*.jpg
+
+# Backup files
+*.backup
+*.bak
+*~
