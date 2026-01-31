@@ -4,10 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LED Strip Control Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
     * {
       margin: 0;
       padding: 0;
@@ -15,7 +12,7 @@
     }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
@@ -41,18 +38,36 @@
       border: 3px solid #e5e7eb;
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .color-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(0,0,0,0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     
     .color-btn:hover {
-      transform: scale(1.15);
+      transform: scale(1.2) translateY(-4px) rotate(5deg);
       border-color: #667eea;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .color-btn:hover::before {
+      opacity: 1;
     }
     
     .color-btn:active {
-      transform: scale(1.05);
+      transform: scale(1.05) translateY(0) rotate(0);
     }
     
     .loading {
@@ -130,14 +145,18 @@
           <div class="control-group">
             <label>Quick Colors</label>
             <div class="color-picker">
-              <div class="color-btn" style="background: #ff0000" data-color="ff0000" title="Red"></div>
-              <div class="color-btn" style="background: #00ff00" data-color="00ff00" title="Green"></div>
-              <div class="color-btn" style="background: #0000ff" data-color="0000ff" title="Blue"></div>
-              <div class="color-btn" style="background: #ffff00" data-color="ffff00" title="Yellow"></div>
-              <div class="color-btn" style="background: #ff00ff" data-color="ff00ff" title="Magenta"></div>
-              <div class="color-btn" style="background: #00ffff" data-color="00ffff" title="Cyan"></div>
-              <div class="color-btn" style="background: #ffffff; border-color: #333" data-color="ffffff" title="White"></div>
-              <div class="color-btn" style="background: #000000" data-color="000000" title="Off"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff0000, #cc0000)" data-color="ff0000" title="Red"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ff00, #00cc00)" data-color="00ff00" title="Green"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #0000ff, #0000cc)" data-color="0000ff" title="Blue"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ffff00, #cccc00)" data-color="ffff00" title="Yellow"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff00ff, #cc00cc)" data-color="ff00ff" title="Magenta"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ffff, #00cccc)" data-color="00ffff" title="Cyan"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff8800, #cc6600)" data-color="ff8800" title="Orange"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #8800ff, #6600cc)" data-color="8800ff" title="Purple"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ff1493, #cc1077)" data-color="ff1493" title="Pink"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #00ff88, #00cc66)" data-color="00ff88" title="Spring Green"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #ffffff, #eeeeee); border-color: #666" data-color="ffffff" title="White"></div>
+              <div class="color-btn" style="background: linear-gradient(135deg, #000000, #333333)" data-color="000000" title="Off"></div>
             </div>
           </div>
           
@@ -149,7 +168,7 @@
                        value="0000ffe1-0000-1000-8000-00805f9b34fb" />
               </div>
               <div>
-                <input type="text" id="data-hex" placeholder="Hex data (e.g., 0a0b0c)" />
+                <input type="text" id="data-hex" placeholder="e.g., 7e070503ff00000000ef (Red)" />
               </div>
             </div>
             <button id="btn-send-command" style="margin-top: 8px;">Send Command</button>
