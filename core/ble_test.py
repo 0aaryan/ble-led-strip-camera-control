@@ -57,7 +57,12 @@ async def inspect(address: str):
             print("Failed to connect.")
             return
         print("Connected. Discovering services...")
-        services = await client.get_services()
+        # Compatibility: some bleak versions provide an async get_services(),
+        # others expose discovered services via the `services` attribute.
+        if hasattr(client, 'get_services') and callable(getattr(client, 'get_services')):
+            services = await client.get_services()
+        else:
+            services = client.services
         for svc in services:
             print(f"Service {svc.uuid} | {svc.description}")
             for char in svc.characteristics:

@@ -21,6 +21,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
+import logging
+import traceback
 
 try:
     from bleak import BleakScanner, BleakClient
@@ -32,6 +34,10 @@ except Exception:
 BLE_CONNECTION_TIMEOUT = 10.0
 
 app = FastAPI(title="LED Strip Helper API")
+
+# Configure module logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Allow local requests from the UI
 app.add_middleware(
@@ -86,31 +92,55 @@ async def api_inspect(address: str):
         async with BleakClient(address) as client:
             if not client.is_connected:
                 raise HTTPException(status_code=500, detail="failed to connect")
-            services = await client.get_services()
+            # Compatibility: some bleak versions provide async get_services(),
+            # others expose discovered services via the `services` attribute.
+            if hasattr(client, 'get_services') and callable(getattr(client, 'get_services')):
+                services = await client.get_services()
+            else:
+                services = client.services
+
             svc_out = []
             for svc in services:
-                chars = []
-                for char in svc.characteristics:
-                    props = []
-                    if char.properties.read:
-                        props.append('read')
-                    if char.properties.write or char.properties.write_without_response:
-                        props.append('write')
-                    if char.properties.notify:
-                        props.append('notify')
-                    if char.properties.indicate:
-                        props.append('indicate')
-                    chars.append({
-                        'uuid': char.uuid,
-                        'description': char.description,
-                        'properties': props,
-                    })
-                svc_out.append({'uuid': svc.uuid, 'description': svc.description, 'characteristics': chars})
+                try:
+                    svc_uuid = getattr(svc, 'uuid', None)
+                    svc_desc = getattr(svc, 'description', '')
+                    chars = []
+                    characteristics = getattr(svc, 'characteristics', []) or []
+                    for char in characteristics:
+                        try:
+                            props = []
+                            cprops = getattr(char, 'properties', None)
+                            # properties may be None or have boolean flags
+                            if cprops and getattr(cprops, 'read', False):
+                                props.append('read')
+                            if cprops and (getattr(cprops, 'write', False) or getattr(cprops, 'write_without_response', False)):
+                                props.append('write')
+                            if cprops and getattr(cprops, 'notify', False):
+                                props.append('notify')
+                            if cprops and getattr(cprops, 'indicate', False):
+                                props.append('indicate')
+                            chars.append({
+                                'uuid': getattr(char, 'uuid', None),
+                                'description': getattr(char, 'description', ''),
+                                'properties': props,
+                            })
+                        except Exception:
+                            logger.exception('Failed to parse characteristic for service %s', svc_uuid)
+                            # Skip this characteristic and continue
+                            continue
+                    svc_out.append({'uuid': svc_uuid, 'description': svc_desc, 'characteristics': chars})
+                except Exception:
+                    logger.exception('Failed to parse service while inspecting %s', address)
+                    # Skip this service and continue
+                    continue
             return {'address': address, 'services': svc_out}
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"inspect failed: {e}")
+        # Log full traceback for server-side debugging
+        logger.exception('Inspect failed for %s: %s', address, e)
+        # Keep response message minimal but useful
+        raise HTTPException(status_code=500, detail=f"inspect failed: {e}. See server logs for details.")
 
 
 @app.get("/api/test-connection")
@@ -122,11 +152,20 @@ async def api_test_connection(address: str):
         async with BleakClient(address, timeout=BLE_CONNECTION_TIMEOUT) as client:
             if not client.is_connected:
                 return {'connected': False, 'error': 'Failed to establish connection'}
-            services = await client.get_services()
+            if hasattr(client, 'get_services') and callable(getattr(client, 'get_services')):
+                services = await client.get_services()
+            else:
+                services = client.services
+            # services may be a collection or have a .services attribute depending on bleak version
+            try:
+                count = len(services.services) if hasattr(services, 'services') else len(services)
+            except Exception:
+                # Fallback: iterate to count
+                count = sum(1 for _ in services)
             return {
-                'connected': True, 
+                'connected': True,
                 'address': address,
-                'service_count': len(services.services) if hasattr(services, 'services') else len(services)
+                'service_count': count,
             }
     except Exception as e:
         return {'connected': False, 'error': str(e)}

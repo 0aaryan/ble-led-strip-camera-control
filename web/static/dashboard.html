@@ -383,7 +383,7 @@
             <div class="grid-2">
               <div>
                 <input type="text" id="char-uuid" placeholder="Characteristic UUID" 
-                       value="0000fff3-0000-1000-8000-00805f9b34fb" />
+                       value="0000ffe1-0000-1000-8000-00805f9b34fb" />
               </div>
               <div>
                 <input type="text" id="data-hex" placeholder="Hex data (e.g., 0a0b0c)" />
@@ -651,7 +651,10 @@
     document.querySelectorAll('.color-btn').forEach(btn => {
       btn.onclick = () => {
         const color = btn.dataset.color
-        sendLEDCommand(color)
+        // Wrap color in LED protocol frame: 7e 07 05 03 RRGGBB 00 checksum
+        // For simplicity, use 7e0705030000 prefix + RRGGBB + ef suffix
+        const command = `7e0705030000${color}ef`
+        sendLEDCommand(command)
       }
     })
 
