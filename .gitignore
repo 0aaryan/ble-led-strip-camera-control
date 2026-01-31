@@ -18,3 +18,10 @@
 .venv
 /poetry.toml
 env/
+
+# Config files (exclude actual configs, keep examples)
+config/settings.py
+config/*.json
+
+# Temporary camera snapshots
+camera_change_*.jpg

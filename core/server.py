@@ -1,5 +1,5 @@
 """
-Simple FastAPI server that exposes BLE scan/inspect endpoints and serves a static single-page UI.
+FastAPI server that exposes BLE scan/inspect/control endpoints and serves a modern dashboard UI.
 
 This backend uses `bleak` to scan and inspect BLE devices. The UI uses browser camera APIs
 (getUserMedia) to access the laptop camera (so we avoid needing OpenCV in the server for the UI flow).
@@ -11,10 +11,12 @@ Run with:
 Endpoints:
   GET /api/scan?timeout=5.0  -> JSON list of discovered devices
   GET /api/inspect?address=AA:BB:... -> JSON with services/characteristics
+  GET /api/test-connection?address=AA:BB:... -> Test if device is connected
+  POST /api/led/write -> Write data to LED characteristic
 
 Static UI served at `/` (from `web/static/index.html`)
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +27,9 @@ try:
 except Exception:
     BleakScanner = None
     BleakClient = None
+
+# Configuration constants
+BLE_CONNECTION_TIMEOUT = 10.0
 
 app = FastAPI(title="LED Strip Helper API")
 
@@ -43,7 +48,7 @@ app.mount("/static", StaticFiles(directory="web/static"), name="static")
 
 @app.get("/")
 async def index():
-    return FileResponse("web/static/index.html")
+    return FileResponse("web/static/dashboard.html")
 
 
 @app.get("/api/scan")
@@ -106,6 +111,53 @@ async def api_inspect(address: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"inspect failed: {e}")
+
+
+@app.get("/api/test-connection")
+async def api_test_connection(address: str):
+    """Test if LED device is connected and responsive."""
+    if BleakClient is None:
+        raise HTTPException(status_code=500, detail="bleak not installed on server. Install with 'pip install bleak'.")
+    try:
+        async with BleakClient(address, timeout=BLE_CONNECTION_TIMEOUT) as client:
+            if not client.is_connected:
+                return {'connected': False, 'error': 'Failed to establish connection'}
+            services = await client.get_services()
+            return {
+                'connected': True, 
+                'address': address,
+                'service_count': len(services.services) if hasattr(services, 'services') else len(services)
+            }
+    except Exception as e:
+        return {'connected': False, 'error': str(e)}
+
+
+@app.post("/api/led/write")
+async def api_led_write(payload: dict = Body(...)):
+    """Write data to LED characteristic. Expects {address, uuid, data_hex}."""
+    if BleakClient is None:
+        raise HTTPException(status_code=500, detail="bleak not installed on server.")
+    
+    address = payload.get('address')
+    char_uuid = payload.get('uuid')
+    data_hex = payload.get('data_hex')
+    
+    if not address or not char_uuid or not data_hex:
+        raise HTTPException(status_code=400, detail="Missing required fields: address, uuid, data_hex")
+    
+    try:
+        data = bytes.fromhex(data_hex)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid hex data")
+    
+    try:
+        async with BleakClient(address, timeout=BLE_CONNECTION_TIMEOUT) as client:
+            if not client.is_connected:
+                raise HTTPException(status_code=500, detail="Failed to connect to device")
+            await client.write_gatt_char(char_uuid, data, response=False)
+            return {'success': True, 'message': f'Wrote {len(data)} bytes to {char_uuid}'}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Write failed: {e}")
 
 
 if __name__ == '__main__':
