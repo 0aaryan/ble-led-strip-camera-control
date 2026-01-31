@@ -95,7 +95,8 @@
     /* Respect user's motion preferences for accessibility */
     @media (prefers-reduced-motion: reduce) {
       .color-btn:hover {
-        transform: scale(1.1);
+        transform: none;
+        border-color: #667eea;
       }
       
       .color-btn::before {
@@ -189,7 +190,8 @@
               <div>
                 <input type="text" id="data-hex" 
                        placeholder="e.g., 7e070503ff00000000ef (Red)" 
-                       pattern="[0-9a-fA-F]*"
+                       pattern="[0-9a-fA-F]+"
+                       minlength="2"
                        title="Enter hexadecimal characters only (0-9, a-f)" />
               </div>
             </div>
