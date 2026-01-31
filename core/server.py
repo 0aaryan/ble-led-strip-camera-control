@@ -28,6 +28,9 @@ except Exception:
     BleakScanner = None
     BleakClient = None
 
+# Configuration constants
+BLE_CONNECTION_TIMEOUT = 10.0
+
 app = FastAPI(title="LED Strip Helper API")
 
 # Allow local requests from the UI
@@ -116,7 +119,7 @@ async def api_test_connection(address: str):
     if BleakClient is None:
         raise HTTPException(status_code=500, detail="bleak not installed on server. Install with 'pip install bleak'.")
     try:
-        async with BleakClient(address, timeout=10.0) as client:
+        async with BleakClient(address, timeout=BLE_CONNECTION_TIMEOUT) as client:
             if not client.is_connected:
                 return {'connected': False, 'error': 'Failed to establish connection'}
             services = await client.get_services()
@@ -148,7 +151,7 @@ async def api_led_write(payload: dict = Body(...)):
         raise HTTPException(status_code=400, detail="Invalid hex data")
     
     try:
-        async with BleakClient(address, timeout=10.0) as client:
+        async with BleakClient(address, timeout=BLE_CONNECTION_TIMEOUT) as client:
             if not client.is_connected:
                 raise HTTPException(status_code=500, detail="Failed to connect to device")
             await client.write_gatt_char(char_uuid, data, response=False)

@@ -179,7 +179,7 @@ poetry run pytest tests/
 ### Code Style
 This project follows standard Python conventions (PEP 8). Format with:
 ```bash
-poetry run black core/
+python3 -m black core/
 ```
 
 ## 🤝 Contributing

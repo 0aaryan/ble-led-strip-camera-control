@@ -561,12 +561,6 @@
       elements.connectionTestResult.innerHTML = ''
       hide(elements.deviceServices)
       
-      // Update selected state in list
-      document.querySelectorAll('.device-item').forEach(item => {
-        item.classList.remove('selected')
-      })
-      event.target.closest('.device-item')?.classList.add('selected')
-      
       updateSystemInfo(`Selected device: ${device.name || device.address}`)
       
       // Auto-test connection

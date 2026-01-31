@@ -5,6 +5,8 @@
 http://127.0.0.1:8000/api
 ```
 
+**Note:** This is the default local development URL. In production, replace with your actual server address and port.
+
 ## Endpoints
 
 ### GET /api/scan
