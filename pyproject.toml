@@ -1,21 +1,37 @@
 [project]
-name = "core"
+name = "ble-led-strip-camera-control"
 version = "0.1.0"
-description = ""
+description = "BLE LED Strip Control with Camera-based Brightness Detection"
 authors = [
-    {name = "0aaryan",email = "aroraryan826@gmail.com"}
+    {name = "0aaryan", email = "aroraryan826@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "opencv-python",
-    "bleak (>=2.1.1,<3.0.0)",
+    "bleak>=2.1.1,<3.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
 ]
 
 [project.optional-dependencies]
 
+[tool.poetry]
+name = "ble-led-strip-camera-control"
+version = "0.1.0"
+description = "BLE LED Strip Control with Camera-based Brightness Detection"
+authors = ["0aaryan <aroraryan826@gmail.com>"]
+readme = "README.md"
+packages = [{include = "core"}]
 
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "*"
+opencv-python = "*"
+bleak = "^2.1.1"
+fastapi = "^0.104.0"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

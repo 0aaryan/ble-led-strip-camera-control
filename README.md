@@ -1,97 +1,204 @@
-LED Strip Helper
-=================
+# LED Strip Control Dashboard
 
-Overview
---------
-This project provides two interfaces to test and control LED strip hardware (commonly controlled via Bluetooth):
+A modern web-based dashboard for controlling Bluetooth LE LED strips with camera-based brightness detection.
 
-- CLI tools (in `core/`) for BLE scanning, inspection and simple write operations.
-- Browser UI (single-page app in `web/static/`) that talks to a Python backend and uses your laptop's camera from the browser to monitor brightness.
+## ✨ Features
 
-Design decisions
-----------------
-- BLE access and any hardware-level operations run in Python using `bleak`. This avoids browser BLE limitations for some platforms and provides stable access to local adapters.
-- Camera detection for the UI is performed client-side in the browser using `getUserMedia` and canvas sampling (no OpenCV required for the UI). This simplifies permissions and makes the UI fast.
-- The backend is a small FastAPI app that exposes BLE scan/inspect endpoints and serves the UI static files. This makes it easy to keep CLI mode and UI mode in the same project.
+- 📡 **BLE Device Scanner**: Discover and connect to nearby Bluetooth devices
+- 🔌 **Connection Testing**: Verify LED strip connectivity and status
+- 💡 **LED Control Panel**: Control LED colors with quick presets or custom commands
+- 📹 **Camera Monitoring**: Real-time brightness detection using your webcam
+- 🎨 **Modern UI**: Responsive dashboard with gradient backgrounds and smooth animations
+- ⚡ **Real-time Updates**: Live status information and system feedback
 
-Project structure
------------------
-- `core/ble_test.py` - CLI BLE helper (scan/inspect/write)
-- `core/camera_detect.py` - (optional) OpenCV camera-based monitor (CLI)
-- `core/main.py` - CLI wrapper to call BLE and camera helpers
-- `core/server.py` - FastAPI server exposing `/api/scan` and `/api/inspect` and serving the static UI
-- `web/static/index.html` - Single-page UI (landing -> scan -> choose device -> choose camera)
-- `README.md` - This file
+## 🏗️ Project Structure
 
-Requirements
-------------
-We recommend using Poetry for a clean environment.
+```
+ble-led-strip-camera-control/
+├── core/                    # Backend Python modules
+│   ├── server.py           # FastAPI server with REST API
+│   ├── ble_test.py         # BLE utilities (CLI)
+│   ├── camera_detect.py    # Camera monitoring (CLI)
+│   └── main.py             # CLI entry point
+├── web/static/             # Frontend files
+│   ├── index.html          # Landing page
+│   └── dashboard.html      # Main dashboard
+├── docs/                   # Documentation
+│   ├── API.md              # API reference
+│   └── ARCHITECTURE.md     # System design
+├── config/                 # Configuration (future use)
+├── tests/                  # Tests (future use)
+└── pyproject.toml          # Dependencies
+```
 
-1. Install Poetry (if not installed):
+## 🚀 Quick Start
 
+### Prerequisites
+
+- Python 3.10 or higher
+- Bluetooth adapter (built-in or USB)
+- Webcam (for camera monitoring features)
+
+### Installation
+
+1. **Install Poetry** (if not already installed):
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-2. Create the virtual environment and install Python deps:
-
+2. **Clone the repository**:
 ```bash
-poetry init --no-interaction
-poetry add fastapi uvicorn[standard] bleak
-# If you want to use the OpenCV CLI monitor (optional):
-poetry add opencv-python
+git clone https://github.com/0aaryan/ble-led-strip-camera-control.git
+cd ble-led-strip-camera-control
 ```
 
-If you prefer to use the existing `pyproject.toml`, add the dependencies there and run `poetry install`.
-
-Running the CLI
-----------------
-You can run BLE and camera CLI helpers from `core/main.py` (they are lazy-imported so dependencies are only required when used):
-
+3. **Install dependencies**:
 ```bash
-# Scan BLE devices
+poetry install
+```
+
+### Running the Dashboard
+
+Start the web server:
+```bash
+poetry run python -m core.server
+```
+
+Then open your browser and navigate to:
+```
+http://127.0.0.1:8000
+```
+
+### Using the Dashboard
+
+1. **Scan for Devices**: Click "Scan for Devices" to discover nearby BLE devices
+2. **Select Device**: Click "Select" on your LED strip device
+3. **Test Connection**: The dashboard automatically tests the connection
+4. **Control LEDs**: Use the color picker or send custom hex commands
+5. **Monitor Brightness**: Start camera preview and monitoring to detect LED changes
+
+## 🖥️ CLI Mode
+
+You can also use the command-line interface for testing:
+
+### Scan for BLE Devices
+```bash
 poetry run python -m core.main ble scan --timeout 5
+```
 
-# Inspect a device (replace ADDRESS)
-poetry run python -m core.main ble inspect --address AC:C2:01:39:3D:5D
+### Inspect a Device
+```bash
+poetry run python -m core.main ble inspect --address AA:BB:CC:DD:EE:FF
+```
 
-# Use the OpenCV camera-based monitor (optional)
+### Send Command to LED
+```bash
+poetry run python -m core.main ble write \
+  --address AA:BB:CC:DD:EE:FF \
+  --uuid 0000fff3-0000-1000-8000-00805f9b34fb \
+  --hex ff0000
+```
+
+### Monitor Camera (OpenCV)
+```bash
 poetry run python -m core.main camera --device 0 --threshold 15
 ```
 
-Running the UI
---------------
-Start the FastAPI server and open the UI in your browser:
+## 📡 API Endpoints
 
+See [API Documentation](docs/API.md) for complete API reference.
+
+**Quick Reference:**
+- `GET /api/scan?timeout=5.0` - Scan for BLE devices
+- `GET /api/inspect?address=...` - Inspect device services
+- `GET /api/test-connection?address=...` - Test device connection
+- `POST /api/led/write` - Send command to LED strip
+
+## 🎨 LED Color Commands
+
+Most LED strips accept 3-byte RGB hex values:
+
+| Color   | Hex Code |
+|---------|----------|
+| Red     | `ff0000` |
+| Green   | `00ff00` |
+| Blue    | `0000ff` |
+| White   | `ffffff` |
+| Yellow  | `ffff00` |
+| Cyan    | `00ffff` |
+| Magenta | `ff00ff` |
+| Off     | `000000` |
+
+**Note**: The exact command format depends on your LED strip model. The default UUID `0000fff3-0000-1000-8000-00805f9b34fb` works with many common BLE LED strips.
+
+## 🔧 Configuration
+
+### Finding Your LED Strip's UUID
+
+1. Run the dashboard and scan for your device
+2. Select your device and click "Inspect Services"
+3. Look for characteristics with "write" property
+4. Common LED control UUIDs:
+   - `0000fff3-0000-1000-8000-00805f9b34fb` (most common)
+   - `0000ffe1-0000-1000-8000-00805f9b34fb`
+   - Check your LED strip's documentation
+
+## 🐛 Troubleshooting
+
+### Bluetooth Issues
+- **Linux**: Ensure BlueZ 5.43+ is installed. You may need to run with `sudo` or set capabilities:
+  ```bash
+  sudo setcap cap_net_raw+ep $(readlink -f $(which python))
+  ```
+- **macOS**: Bluetooth should work out of the box
+- **Windows**: Ensure Bluetooth is enabled in system settings
+
+### Camera Issues
+- Grant camera permissions when prompted by your browser
+- Check that no other application is using the camera
+- Try a different browser if camera enumeration fails
+
+### Connection Failures
+- Ensure the LED strip is powered on
+- Move closer to the device (RSSI > -70 is ideal)
+- Check that the device isn't already connected to another app
+- Some devices can only maintain one connection at a time
+
+## 📚 Documentation
+
+- [API Reference](docs/API.md) - Complete API documentation
+- [Architecture](docs/ARCHITECTURE.md) - System design and technical details
+
+## 🛠️ Development
+
+### Running Tests
 ```bash
-poetry run python -m core.server
-# Visit http://127.0.0.1:8000/ in your browser
+poetry run pytest tests/
 ```
 
-UI Flow (what the app does)
----------------------------
-1. Landing page with two buttons: "Scan Bluetooth Devices" and "Choose Camera".
-2. "Scan" calls `/api/scan` and lists discovered devices. Select a device to proceed.
-3. Camera page enumerates available cameras via `navigator.mediaDevices` and previews the selected camera.
-4. Start monitoring: the client captures a baseline brightness and detects changes; detected changes are logged and can be extended to call backend APIs or save images.
+### Code Style
+This project follows standard Python conventions (PEP 8). Format with:
+```bash
+poetry run black core/
+```
 
-Why this architecture is a good fit
-----------------------------------
-- Using a Python backend for BLE avoids differences between browsers and OS-level BLE implementations.
-- Client-side camera handling avoids heavy native deps and lets the user grant camera permission directly in the browser.
-- The stack is lightweight and easy to package: most work is in Python + simple static frontend.
+## 🤝 Contributing
 
-Next steps you can ask me to implement
--------------------------------------
-- Add a persistent configuration and pairing flow (store chosen device UUIDs).
-- Add BLE write/command UI to send control packets to the LED strip.
-- Implement Server-Sent Events (SSE) or WebSocket from server to browser for real-time notifications.
-- Capture and upload snapshot images when brightness changes.
-- Wrap frontend in a proper SPA framework (React/Vue) and add build tooling.
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
-If you'd like, I can now:
-- Add BLE write UI so you can send commands to the selected device.
-- Add pairing and persistent settings.
-- Convert the UI to React + Vite and add a `package.json`.
+## 📝 License
 
-Tell me which next step you'd prefer and I'll implement it.
+This project is provided as-is for educational and personal use.
+
+## 🎯 Next Steps
+
+Planned features:
+- [ ] WebSocket support for real-time updates
+- [ ] Persistent device pairing and configuration
+- [ ] Advanced LED pattern presets (rainbow, fade, strobe)
+- [ ] Image capture when brightness changes detected
+- [ ] Multi-device support
+- [ ] React-based frontend with build tooling
+- [ ] User authentication and session management
+- [ ] Database for logging and history
+
